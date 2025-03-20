@@ -15,6 +15,7 @@ model Student {
   rollNo    Int
   contactNo String
   status    Boolean @default(true)
-
+  createdAt DateTime @default(now())   // Automatically sets creation timestamp
+  updatedAt DateTime @updatedAt        // Automatically updates on modification
   @@unique([class, rollNo]) // Ensures roll number is unique per class
 }
