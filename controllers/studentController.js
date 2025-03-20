@@ -55,15 +55,18 @@ exports.getAllStudents = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    // Fetch students with pagination
+    // Fetch students with pagination, excluding soft-deleted students
     const students = await prisma.student.findMany({
+      where: { isDeleted: false },  //  Exclude soft-deleted students
       skip,
       take: limit,
       orderBy: { createdAt: "desc" }, // Sort newest first
     });
 
-    // Get total count for pagination metadata
-    const totalStudents = await prisma.student.count();
+    // Get total count of non-deleted students for pagination
+    const totalStudents = await prisma.student.count({
+      where: { isDeleted: false },  //  Count only active students
+    });
 
     res.status(200).json({
       success: true,
@@ -84,7 +87,6 @@ exports.getAllStudents = async (req, res) => {
   }
 };
 
-
 // Get Student by Registration Number (GET /students/:regNo)
 exports.getStudentByRegNo = async (req, res) => {
   try {
@@ -96,11 +98,11 @@ exports.getStudentByRegNo = async (req, res) => {
     }
 
     const student = await prisma.student.findUnique({
-      where: { regNo },
+      where: { regNo, isDeleted: false },  // Exclude soft-deleted students
     });
 
     if (!student) {
-      return res.status(400).json({ success: false, error: "Student not found" });
+      return res.status(400).json({ success: false, error: "Student not found" });  //  Use 404 for not found
     }
 
     res.status(200).json({
@@ -115,7 +117,6 @@ exports.getStudentByRegNo = async (req, res) => {
     await prisma.$disconnect();
   }
 };
-
 
 // Update Student
 exports.updateStudent = async (req, res) => {
