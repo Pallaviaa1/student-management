@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id        Int     @id @default(autoincrement())
+  regNo     String  @unique
+  name      String
+  class     String
+  rollNo    Int
+  contactNo String
+  status    Boolean @default(true)
+
+  @@unique([class, rollNo]) // Ensures roll number is unique per class
+}
